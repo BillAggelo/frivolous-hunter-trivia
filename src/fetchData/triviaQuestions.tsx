@@ -42,20 +42,20 @@ const getTriviaFiveHardQuestions = () => {
     });
 };
 
-export function retriveTriviaQuestions() {
+export const retriveTriviaQuestions = () => {
   let questions: any[] = [];
 
-  getTriviaFiveEasyQuestions().then((easyQuestions) => {
+  return getTriviaFiveEasyQuestions().then((easyQuestions) => {
     questions = questions.concat(easyQuestions);
 
-    getTriviaFiveMediumQuestions().then((mediumQuestions) => {
+    return getTriviaFiveMediumQuestions().then((mediumQuestions) => {
       questions = questions.concat(mediumQuestions);
 
-      getTriviaFiveHardQuestions().then((hardQuestions) => {
+      return getTriviaFiveHardQuestions().then((hardQuestions) => {
         questions = questions.concat(hardQuestions);
 
         return questions.sort(() => Math.random() - 0.5);
       });
     });
   });
-}
+};
