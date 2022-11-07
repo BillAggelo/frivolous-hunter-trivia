@@ -1,7 +1,8 @@
 import * as React from "react";
 // @ts-ignore
 import IAnswerBtn from "./interface/IAnswerBtn.tsx";
-import Result from "./result";
+// @ts-ignore
+import Result from "./result.tsx";
 const { useEffect, useState } = React;
 
 export default function Question(props: any) {
@@ -35,6 +36,10 @@ export default function Question(props: any) {
     useState(true);
   const [isBtnDisabled, setIsBtnDisabled] = useState(false);
   const [btnAnswer, setBtnAnswer] = useState<IAnswerBtn[]>(initBtnProperties());
+  const [questionScreenDisplay, setQuestionScreenDisplay] = useState("block");
+  const [resultScreenDisplay, setResultScreenDisplay] = useState("none");
+  const [givenAnsResult, setGivenAnsResult] = useState("");
+  const [givenAnsColor, setGivenAnsColor] = useState("");
 
   useEffect(() => {
     let resultAnswers = initializeCurrentPosibleAnswers();
@@ -43,10 +48,10 @@ export default function Question(props: any) {
       (el, i) => ((el.color = ""), (el.answer = resultAnswers[i]))
     );
     setBtnAnswer(btnAnswer);
+    setGivenAnsResult("");
+    setGivenAnsColor("");
     setIsBtnDisabled(false);
     setIsNextQuestionBtnDisabled(true);
-    if (currentQuestionIndex === 14)
-      document.getElementById("nextQuestionBtnID")!.style.visibility = "hidden";
   }, [currentQuestionIndex]);
 
   useEffect(() => {
@@ -67,9 +72,10 @@ export default function Question(props: any) {
 
   function initializeCurrentPosibleAnswers() {
     let result: any[] = [];
-    let wrongAnswers = decodeURIComponent(
-      questions[currentQuestionIndex].incorrect_answers
-    ).split(",");
+    let wrongAnswers: any[] = [];
+    questions[currentQuestionIndex].incorrect_answers.forEach((el) =>
+      wrongAnswers.push(decodeURIComponent(el))
+    );
     let correctAnswer = decodeURIComponent(
       questions[currentQuestionIndex].correct_answer
     );
@@ -113,20 +119,28 @@ export default function Question(props: any) {
     btnAnswer.forEach((el) => {
       const btn = document.getElementById(el.id) as HTMLButtonElement;
       if (btn.innerHTML === correctAnswer) {
-        el.color = "#187b50";
+        el.color = "#187B50";
         setBtnAnswer(btnAnswer);
       }
     });
 
-    if (isAnswerCorrect) calculateFinalScore();
+    if (isAnswerCorrect) {
+      setGivenAnsColor("#187B50");
+      calculateFinalScore();
+    } else {
+      setGivenAnsColor("#C7293B");
+    }
 
+    setGivenAnsResult(
+      "Correct answer: " + correctAnswer + "! Your answer: " + answer.answer
+    );
     setIsBtnDisabled(true);
     setIsNextQuestionBtnDisabled(false);
   };
 
   return (
     <React.Fragment>
-      <div style={{ display: "block" }}>
+      <div style={{ display: questionScreenDisplay }}>
         <div className="container">
           <div className="row">
             <div className="col-12 text-center">
@@ -224,6 +238,20 @@ export default function Question(props: any) {
               </button>
             </div>
           </div>
+          <div className="row mt-5">
+            <div className="col-12 text-center">
+              <span
+                className="lead px-md-6"
+                style={{
+                  fontWeight: "bold",
+                  fontFamily: "Segoe Print",
+                  color: givenAnsColor,
+                }}
+              >
+                {givenAnsResult}
+              </span>
+            </div>
+          </div>
         </div>
 
         <div className="row justify-content-end mt-4">
@@ -239,15 +267,29 @@ export default function Question(props: any) {
                 fontFamily: "Segoe Print",
                 border: "3px solid black",
               }}
-              onClick={() => setCurrentQuestionIndex(currentQuestionIndex + 1)}
+              onClick={() => {
+                if (currentQuestionIndex !== 14)
+                  setCurrentQuestionIndex(currentQuestionIndex + 1);
+                else {
+                  setQuestionScreenDisplay("none");
+                  setResultScreenDisplay("block");
+                }
+              }}
             >
               {"-->"}
             </button>
           </div>
         </div>
       </div>
-      <div style={{ display: "none" }}>
-        <Result />
+      <div style={{ display: resultScreenDisplay }}>
+        <Result
+          score={score}
+          correctAnswerCount={correctAnswerCount}
+          questionsCount={questions.length}
+          easyCounter={easyAnsCount}
+          mediumCounter={mediumAnsCount}
+          hardCounter={hardAnsCount}
+        />
       </div>
     </React.Fragment>
   );

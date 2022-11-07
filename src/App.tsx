@@ -20,7 +20,7 @@ export default function App() {
       <Title />
 
       <main className="container">
-        {questionsList.length && <Question questions={questionsList} />}
+        {questionsList.length > 0 && <Question questions={questionsList} />}
       </main>
     </React.Fragment>
   );
