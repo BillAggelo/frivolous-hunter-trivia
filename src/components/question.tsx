@@ -3,6 +3,8 @@ import * as React from "react";
 import IAnswerBtn from "./interface/IAnswerBtn.tsx";
 // @ts-ignore
 import Result from "./result.tsx";
+//@ts-ignore
+import Timer from "./timer.tsx";
 const { useEffect, useState } = React;
 
 export default function Question(props: any) {
@@ -40,6 +42,8 @@ export default function Question(props: any) {
   const [resultScreenDisplay, setResultScreenDisplay] = useState("none");
   const [givenAnsResult, setGivenAnsResult] = useState("");
   const [givenAnsColor, setGivenAnsColor] = useState("");
+  const [timerSeconds, setTimerSeconds] = useState(10);
+  const [isTimerStoped, setIsTimerStoped] = useState(false);
 
   useEffect(() => {
     let resultAnswers = initializeCurrentPosibleAnswers();
@@ -52,6 +56,8 @@ export default function Question(props: any) {
     setGivenAnsColor("");
     setIsBtnDisabled(false);
     setIsNextQuestionBtnDisabled(true);
+    setTimerSeconds(10);
+    setIsTimerStoped(false);
   }, [currentQuestionIndex]);
 
   useEffect(() => {
@@ -102,15 +108,20 @@ export default function Question(props: any) {
     }
   };
 
-  const calculateFinalScore = () => {
+  const calculateFinalScore = (secondsLeft) => {
     let questionDifficalty = questions[currentQuestionIndex].difficulty;
 
     increaseDifficaltyCounters(questionDifficalty.toUpperCase());
     setCorrectAnswerCount(correctAnswerCount + 1);
-    setScore(score + points.get(questionDifficalty)!);
+    setScore(score + points.get(questionDifficalty)! * secondsLeft);
   };
 
   const checkGivenAnswer = (answer) => {
+    let secondsLeft = parseInt(
+      document.getElementById("questionTimer")!.innerHTML
+    );
+    setIsTimerStoped(true);
+    setTimerSeconds(secondsLeft);
     let correctAnswer = decodeURIComponent(
       questions[currentQuestionIndex].correct_answer
     );
@@ -125,8 +136,10 @@ export default function Question(props: any) {
     });
 
     if (isAnswerCorrect) {
+      let seconds = 0;
+      secondsLeft === 0 ? (seconds = 1) : (seconds = secondsLeft);
       setGivenAnsColor("#187B50");
-      calculateFinalScore();
+      calculateFinalScore(seconds);
     } else {
       setGivenAnsColor("#C7293B");
     }
@@ -238,7 +251,7 @@ export default function Question(props: any) {
               </button>
             </div>
           </div>
-          <div className="row mt-5">
+          <div className="row mt-3">
             <div className="col-12 text-center">
               <span
                 className="lead px-md-6"
@@ -253,6 +266,8 @@ export default function Question(props: any) {
             </div>
           </div>
         </div>
+
+        <Timer timeoutInSeconds={timerSeconds} isStoped={isTimerStoped} />
 
         <div className="row justify-content-end mt-4">
           <div className="col-4" style={{ textAlign: "end" }}>

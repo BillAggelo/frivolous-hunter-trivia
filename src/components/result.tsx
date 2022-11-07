@@ -59,13 +59,13 @@ export default function Result(props: any) {
                       Correct answers:
                     </div>
                     <div className="row justify-content-center">
-                      {props.easyCounter} easy x15
+                      {props.easyCounter} easy x15 * seconds left
                     </div>
                     <div className="row justify-content-center">
-                      {props.mediumCounter} medium x18
+                      {props.mediumCounter} medium x18 * seconds left
                     </div>
                     <div className="row justify-content-center">
-                      {props.hardCounter} hard x25
+                      {props.hardCounter} hard x25 * seconds left
                     </div>
                     <div className="row justify-content-center">
                       Total: {props.score}
